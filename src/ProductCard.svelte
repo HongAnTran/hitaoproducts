@@ -63,7 +63,7 @@
     {/each}
   </div>
 
-  <h3 class="product-name">{product.name}</h3>
+  <h3 class="product-name">{product.name} {product.type}</h3>
   <p class="price">
     {formatCurrency(activeVariant.price)}
     {#if activeVariant.compare_price}
@@ -81,8 +81,8 @@
     <p class="promo-text">{product.description}</p>
   {/if}
 
-  {#if product.status}
-    <span class="badge">{product.status}</span>
+  {#if activeVariant.status}
+    <span class="badge">{activeVariant.status}</span>
   {/if}
 </div>
 
@@ -103,7 +103,7 @@
   }
   .product-card:hover {
     box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
-    transform: scale(1.01);
+    /* transform: scale(1.01); */
     background: #2c2c2c;
   }
 
@@ -141,11 +141,13 @@
     background: #333;
     color: white;
     border: 1px solid #444;
-    padding: 6px 12px;
+    padding: 10px;
     cursor: pointer;
     border-radius: 6px;
     font-size: 14px;
     transition: all 0.3s ease;
+    min-width: 42px;
+    font-weight: 600;
   }
 
   .option-btn.active {
@@ -156,7 +158,7 @@
 
   .product-name {
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 500;
     margin-top: 12px;
   }
 
@@ -170,6 +172,8 @@
   .compare-price {
     text-decoration: line-through;
     color: #bbb;
+    font-size: 16px;
+
     margin-left: 8px;
   }
 
@@ -200,5 +204,21 @@
     color: white;
     padding: 4px 6px;
     text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .product-name {
+      font-size: 16px;
+    }
+    .price {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .compare-price {
+      font-size: 14px;
+    }
   }
 </style>
