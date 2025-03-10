@@ -1,7 +1,15 @@
-import App from "./App.svelte";
+// import { mount } from 'svelte';
+// import App from './App.svelte';
 
-const target = document.getElementById("hitaoproducts");
+// mount(App, {
+//   target: document.getElementById('hitaoproducts') 
+// });
 
-if (target) {
-  new App({ target });
-}
+import { mount } from 'svelte'
+import App from './App.svelte'
+import './app.css'
+const app = mount(App, {
+  target: document.getElementById('hitaoproducts'),
+})
+
+export default app

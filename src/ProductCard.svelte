@@ -2,6 +2,9 @@
   export let product;
   let activeVariant = product.variants[0]; // Mặc định lấy variant đầu tiên
   function formatCurrency(price) {
+    if (!Number(price)) {
+      return price;
+    }
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
@@ -9,15 +12,15 @@
   }
 
   let options = [];
-  product.variants.forEach((variant) => {
-    if (!options[0]) options[0] = new Set();
-    if (!options[1]) options[1] = new Set();
+  options[0] = [...new Set(product.variants.map((v) => v.option_1))]; // Lấy danh sách option_1
 
-    options[0].add(variant.option_1);
-    options[1].add(variant.option_2);
-  });
-
-  options = options.map((option) => [...option]);
+  options[1] = [
+    ...new Set(
+      product.variants
+        .filter((v) => v.option_1 === activeVariant.option_1)
+        .map((v) => v.option_2)
+    ),
+  ];
 
   let selectedOptions = {
     option_1: activeVariant.option_1,
@@ -27,6 +30,17 @@
   function selectOption(type, value) {
     selectedOptions[type] = value;
 
+    if (type === "option_1") {
+      const validOption2 = product.variants
+        .filter((v) => v.option_1 === value)
+        .map((v) => v.option_2);
+
+      options[1] = [...new Set(validOption2)];
+
+      if (!options[1].includes(selectedOptions.option_2)) {
+        selectedOptions.option_2 = options[1][0];
+      }
+    }
     const foundVariant = product.variants.find(
       (v) =>
         v.option_1 === selectedOptions.option_1 &&
@@ -40,12 +54,14 @@
 </script>
 
 <div class="product-card">
-  {#key activeVariant.image}
-    <img class="product-image" src={activeVariant.image} alt={product.name} />
-  {/key}
+  <div class=" product-image-contaner">
+    {#key activeVariant.image}
+      <img class="product-image" src={activeVariant.image} alt={product.name} />
+    {/key}
+  </div>
   <div class="options">
     {#each options as optionRow, i}
-      <div class="option-row">
+      <div class="option-row {i === 1 ? 'no-wrap' : ''}">
         {#each optionRow as option}
           <button
             class="option-btn {selectedOptions[
@@ -63,26 +79,28 @@
     {/each}
   </div>
 
-  <h3 class="product-name">{product.name} {product.type}</h3>
-  <p class="price">
-    {formatCurrency(activeVariant.price)}
-    {#if activeVariant.compare_price}
-      <span class="compare-price"
-        >{formatCurrency(activeVariant.compare_price)}</span
-      >
-      <span class="discount"
-        >-{Math.round(
-          (1 - activeVariant.price / activeVariant.compare_price) * 100
-        )}%</span
-      >
+  <div class="product-content">
+    <h3 class="product-name">{product.name} {product.type}</h3>
+    <p class="price">
+      {formatCurrency(activeVariant.price)}
+      {#if activeVariant.compare_price}
+        <span class="compare-price"
+          >{formatCurrency(activeVariant.compare_price)}</span
+        >
+        <span class="discount"
+          >-{Math.round(
+            (1 - activeVariant.price / activeVariant.compare_price) * 100
+          )}%</span
+        >
+      {/if}
+    </p>
+    {#if product.description}
+      <p class="promo-text">{product.description}</p>
     {/if}
-  </p>
-  {#if product.description}
-    <p class="promo-text">{product.description}</p>
-  {/if}
+  </div>
 
   {#if activeVariant.status}
-    <span class="badge">{activeVariant.status}</span>
+    <span class="badge-hitao">{activeVariant.status}</span>
   {/if}
 </div>
 
@@ -97,7 +115,7 @@
     padding: 24px;
     border-radius: 12px;
     text-align: center;
-    color: white;
+    color: white !important;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
     transition: 0.3s ease;
   }
@@ -107,6 +125,19 @@
     background: #2c2c2c;
   }
 
+  .product-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+  }
+
+  .product-image-contaner {
+    width: 100%;
+    max-width: 265px;
+    max-height: 265px;
+    min-height: 265px;
+  }
   .product-image {
     width: 100%;
     max-width: 265px;
@@ -135,9 +166,11 @@
     flex-direction: column;
     gap: 10px;
     margin-top: 10px;
+    margin-bottom: 10px;
   }
 
   .option-btn {
+    all: unset;
     background: #333;
     color: white;
     border: 1px solid #444;
@@ -148,6 +181,7 @@
     transition: all 0.3s ease;
     min-width: 42px;
     font-weight: 600;
+    flex-shrink: 0;
   }
 
   .option-btn.active {
@@ -156,10 +190,14 @@
     border: 1px solid orange;
   }
 
+  .mt-auto {
+    margin-top: auto;
+  }
   .product-name {
     font-size: 18px;
     font-weight: 500;
     margin-top: 12px;
+    color: white !important;
   }
 
   .price {
@@ -191,13 +229,14 @@
   .option-row {
     justify-content: center;
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
-  .badge {
+  .badge-hitao {
     position: absolute;
     top: 10px;
-    left: 10px;
+    right: 10px;
     border-radius: 50px;
     background-color: orange;
     border: 2px solid orange;
@@ -209,8 +248,14 @@
   }
 
   @media (max-width: 768px) {
+    .product-image-contaner {
+      min-height: 155px;
+    }
+    .product-card {
+      padding: 12px;
+    }
     .product-name {
-      font-size: 16px;
+      font-size: 14px;
     }
     .price {
       font-size: 14px;
@@ -219,6 +264,39 @@
 
     .compare-price {
       font-size: 14px;
+    }
+    .option-btn {
+      font-size: 10px;
+      padding: 4px;
+    }
+    .badge-hitao {
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 4px;
+    }
+    .no-wrap {
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+      padding-bottom: 5px;
+      justify-content: start;
+      max-width: 155px;
+      flex-wrap: nowrap;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .product-image-contaner {
+      min-height: 135px;
+    }
+    .no-wrap {
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+      padding-bottom: 5px;
+      justify-content: start;
+      max-width: 110px;
+      flex-wrap: nowrap;
     }
   }
 </style>

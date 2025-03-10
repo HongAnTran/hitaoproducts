@@ -1,39 +1,44 @@
 <script>
   import { onMount } from "svelte";
   import ProductCard from "./ProductCard.svelte";
+
   let products = [];
   let categories = [];
   let search = "";
   let selectedCategory = null;
   let loading = true;
+
   async function fetchProducts() {
     try {
       loading = true;
       const URL =
         "https://script.google.com/macros/s/AKfycbzd8UxotHsnVbJThY3mJNLQX3P6qDTBkyjesPMcFPTyDU2f0VZZKDMIghSZExVdyisO/exec";
       const response = await fetch(URL);
+      if (!response.ok) throw new Error("Lỗi khi tải dữ liệu");
       products = await response.json();
     } catch (error) {
       console.error("fetchProducts error", error);
+      products = [];
     } finally {
       loading = false;
     }
   }
 
-  onMount(async () => {
-    await fetchProducts();
-    categories = [...new Set(products.map((p) => p.category))];
-  });
+  onMount(fetchProducts);
 
-  $: filteredProducts = products.filter(
+  // Cập nhật categories khi products thay đổi
+  $: categories = [...new Set(products.map((p) => p.category))];
+
+  // Lọc sản phẩm dựa trên category và search
+  $: filteredProducts = (products || []).filter(
     (p) =>
       (!selectedCategory || p.category === selectedCategory) &&
-      p.name.toLowerCase().includes(search.toLowerCase())
+      (p.name?.toLowerCase() || "").includes(search.toLowerCase())
   );
 </script>
 
-<main>
-  <div class="container">
+<div class="hitaocontaier container">
+  <div class="box-stick">
     <div class="input-container">
       <input type="text" placeholder="Tìm sản phẩm..." bind:value={search} />
     </div>
@@ -53,31 +58,38 @@
         </button>
       {/each}
     </div>
-    {#if loading}
-      <div class="grid">
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-        <div class="skeleton-card"></div>
-      </div>
-    {:else}
-      <div class="grid">
-        {#each filteredProducts as product}
-          {#key product.id}
-            <ProductCard {product} />
-          {/key}
-        {/each}
-      </div>
-      {#if filteredProducts.length === 0}
-        <div class="empty"><p>Không tìm thấy sản phẩm nào!</p></div>
-      {/if}
-    {/if}
+    <div class=" product-type">
+      <h5>Lock</h5>
+      <h5>Quốc tế</h5>
+    </div>
   </div>
-</main>
+  {#if loading}
+    <div class="grid">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
+  {:else}
+    <div class="grid">
+      {#each filteredProducts as product (product.id)}
+        <ProductCard {product} />
+      {/each}
+    </div>
+    {#if filteredProducts.length === 0}
+      <div class="empty"><p>Không tìm thấy sản phẩm nào!</p></div>
+    {/if}
+  {/if}
+</div>
 
 <style>
   * {
-    font-family: monospace, sans-serif;
+    font-family:
+      Helvetica Neue,
+      Helvetica,
+      Arial,
+      SF Pro Display,
+      sans-serif !important;
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
@@ -86,33 +98,70 @@
     max-width: 1080px;
     margin: auto;
   } */
+  .box-stick {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #3e3e3f;
+  }
+
+  .hitaocontaier {
+    position: relative;
+    overflow: visible !important;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     align-items: stretch;
   }
-  @media (max-width: 768px) {
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
 
   .categories {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 20px;
+    justify-content: center;
+    padding-left: 6px;
+    padding-right: 6px;
   }
-  button {
+  .categories button {
+    all: unset;
     padding: 10px;
     border: none;
     cursor: pointer;
     background: transparent;
     transition: 0.3;
     color: white;
-    /* text-transform: uppercase; */
     font-weight: 600;
   }
+
+  .product-type {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 12px;
+  }
+
+  .product-type h5 {
+    color: #ff6600 !important; /* Màu cam đậm hơn để tăng độ tương phản */
+    font-size: 26px; /* Tăng nhẹ kích thước */
+    font-weight: 700; /* Làm chữ đậm hơn */
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1.5px; /* Tạo khoảng cách chữ giúp dễ đọc hơn */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Hiệu ứng đổ bóng */
+    padding: 10px 0; /* Tạo khoảng cách trên dưới */
+    background: linear-gradient(
+      90deg,
+      rgba(255, 102, 0, 0.2),
+      transparent
+    ); /* Tạo hiệu ứng nền nhẹ */
+    display: inline-block; /* Giữ nền chỉ vừa với nội dung */
+    border-radius: 5px; /* Làm mềm góc */
+  }
+
   button.selected {
     border-bottom: 1px solid orange;
     color: white;
@@ -179,6 +228,22 @@
     }
     100% {
       background: #4f4f4f;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .categories button {
+      padding: 0px;
+      font-size: 13px;
+    }
+
+    .product-type h5 {
+      font-size: 22px; /* Tăng nhẹ kích thước */
     }
   }
 </style>
