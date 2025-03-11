@@ -94,8 +94,8 @@
         >
       {/if}
     </p>
-    {#if product.description}
-      <p class="promo-text">{product.description}</p>
+    {#if activeVariant.description}
+      <p class="promo-text">{activeVariant.description}</p>
     {/if}
   </div>
 

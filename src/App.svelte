@@ -12,7 +12,7 @@
     try {
       loading = true;
       const URL =
-        "https://script.google.com/macros/s/AKfycbzd8UxotHsnVbJThY3mJNLQX3P6qDTBkyjesPMcFPTyDU2f0VZZKDMIghSZExVdyisO/exec";
+        "https://script.google.com/macros/s/AKfycbz1n9xzTw1M6hwQEjUGqN6S6nZnZi_Slm0zaXF3MldgwSKaWDOiCMkqoBmLoFI3J6u5/exec";
       const response = await fetch(URL);
       if (!response.ok) throw new Error("Lỗi khi tải dữ liệu");
       products = await response.json();
@@ -58,10 +58,10 @@
         </button>
       {/each}
     </div>
-    <div class=" product-type">
+    <!-- <div class=" product-type">
       <h5>Lock</h5>
       <h5>Quốc tế</h5>
-    </div>
+    </div> -->
   </div>
   {#if loading}
     <div class="grid">
