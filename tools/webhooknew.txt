@@ -1,0 +1,227 @@
+var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+var sheetBaoHanh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Baohanh");
+var sheetTonKho = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Tonkho");
+
+function getAccessToken() {
+  var url = "https://id.kiotviet.vn/connect/token";
+  var scriptProperties = PropertiesService.getScriptProperties();
+  var client_id = scriptProperties.getProperty("client_id");
+  var client_secret = scriptProperties.getProperty("client_secret");
+  var payload = {
+    client_id,
+    client_secret,
+    grant_type: "client_credentials",
+    scopes: "PublicApi.Access"
+  };
+
+  var options = {
+    method: "post",
+    contentType: "application/x-www-form-urlencoded",
+    payload: payload
+  };
+
+  var response = UrlFetchApp.fetch(url, options);
+  var data = JSON.parse(response.getContentText());
+
+  return data.access_token; 
+}
+
+function checkExistCodeTonkho(code){
+  var data = sheetTonKho.getDataRange().getValues();
+  for (var i = data.length - 1; i > 0; i--) { 
+    if (data[i][1] === code) { 
+      return true
+    }
+  }
+  return false
+}
+function handleDeleteProduct(productCode){
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][1] === productCode) { 
+      sheetTonKho.deleteRow(i + 1);
+    }
+  }
+}
+function handleUpdateOnHand(productCode, newQuantity) {
+  var data = sheetTonKho.getDataRange().getValues();
+  if(newQuantity <=0){
+     handleDeleteProduct(productCode)
+     return
+  }
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][1] === productCode) { 
+      sheetTonKho.getRange(i + 1, 3).setValue(newQuantity); // Cập nhật số lượng mới
+      break;
+    }
+  }
+}
+function getCustomerByCode(code,headers){
+   var url = "https://public.kiotapi.com/customers/code/" + encodeURIComponent(code);
+      try {
+        var response = UrlFetchApp.fetch(url, {
+          method: "get",
+          headers: headers,
+        });
+        var json = JSON.parse(response.getContentText());
+        const data = {
+          code: json.code,
+          name: json.name,
+          contactNumber: json.contactNumber,
+          address: json.address,
+        };
+        return data
+} catch (e) {
+        Logger.log("Lỗi khi lấy khách hàng: " + code + " - " + e);
+      }
+}
+
+function getInvoice(code,headers){
+   var url = "https://public.kiotapi.com/invoices/code/" + encodeURIComponent(code);
+      try {
+        var response = UrlFetchApp.fetch(url, {
+          method: "get",
+          headers: headers,
+        });
+        var json = JSON.parse(response.getContentText());
+        return json
+} catch (e) {
+        Logger.log("Lỗi khi lấy hóa đơn: " + code + " - " + e);
+      }
+}
+function getCates(headers){
+   var url = "https://public.kiotapi.com/categories?format=json";
+      try {
+        var response = UrlFetchApp.fetch(url, {
+          method: "get",
+          headers: headers,
+        });
+        var json = JSON.parse(response.getContentText());
+        return json.data
+} catch (e) {
+        Logger.log("Lỗi khi lấy danh mục: " + e);
+      }
+}
+
+function formatDate(isoString) {
+  const date = new Date(isoString);
+  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+}
+
+function checkExistCode(code){
+  var data = sheetBaoHanh.getDataRange().getValues();
+  for (var i = data.length - 1; i > 0; i--) { 
+    if (data[i][12] === code) { 
+      return true
+    }
+  }
+  return false
+}
+
+
+function deleteRowByInvoiceCode(code) {
+  var data = sheetBaoHanh.getDataRange().getValues();
+    for (var i = data.length - 1; i > 0; i--) { 
+    if (data[i][12] === code) { 
+          sheetBaoHanh.deleteRow(i + 1); 
+    }
+  }
+}
+function main(data){
+  const action = data.Notifications[0].Action
+  if(data.Notifications[0].Action.includes("customer.update")){
+     const customer = data.Notifications[0].Data[0]
+     updateCustomer(customer)
+    return
+  }
+ if (action.includes("stock.update")) {
+  const stocks = data.Notifications[0].Data; 
+  stocks.forEach(stock => {
+    handleUpdateOnHand(stock.ProductCode, stock.OnHand);
+  });
+}
+
+  const invoice = data.Notifications[0].Data[0]
+  const statusSuccess = 1
+  if(invoice.Status === statusSuccess){
+    addInvoiceToSheet(invoice.Code)
+  }else{
+    deleteRowByInvoiceCode(invoice.Code)
+  }
+}
+function updateCustomer(customer) {
+  var data = sheetBaoHanh.getDataRange().getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][13] === customer.Code) { 
+      if (customer.Name) {
+        sheetBaoHanh.getRange(i + 1, 6).setValue(customer.Name); 
+      }
+      if (customer.Address) {
+        sheetBaoHanh.getRange(i + 1, 7).setValue(customer.Address); 
+      }
+      if (customer.ContactNumber) {
+        sheetBaoHanh.getRange(i + 1, 8).setValue(customer.ContactNumber); 
+      }
+      break;
+    }
+  }
+}
+
+function addInvoiceToSheet(code){
+
+ const token = getAccessToken()
+  const headers={
+    "Content-Type": "application/json",
+    "Retailer": "hitao",
+    "Authorization": `Bearer ${token}`
+  }
+ const item = getInvoice(code,headers)
+ const cates  = getCates(headers)
+  const cus = getCustomerByCode(item.customerCode,headers)
+   const products = item.invoiceDetails.filter(p => !p.productName.toLowerCase().includes("bảo hành"));
+        const baohanh = item.invoiceDetails.find(p => p.categoryName.toLowerCase().includes('bảo hành'));
+        const product = item.invoiceDetails.length === 1 ? item.invoiceDetails[0] : products.length === 1 
+          ? products[0] 
+          : products.reduce((max, item) => (item.price > max.price ? item : max), products[0]);
+        const categoryId = product.categoryId;
+        const cate = cates.find(ca => ca.categoryId === categoryId);
+        const cateCha = cate?.parentId ? cates.find(ca => ca.categoryId === cate.parentId) : null;
+        const cateName = cateCha ? `${cateCha.categoryName} > ${cate.categoryName}` : cate?.categoryName || null;
+         const row =  [
+          null,
+          product.productName,
+          cateName,
+          product.tradeMarkName || null,
+          product.productCode || null,
+          item.customerName || null,
+          cus.address || null,
+          cus.contactNumber || null,
+          formatDate(item.purchaseDate),
+          item.soldByName || null,
+          baohanh?.productName || null,
+          null,
+          item.code,
+          item.customerCode || null
+        ];
+if (checkExistCode(code)) {
+    var data = sheetBaoHanh.getDataRange().getValues();
+    for (var i = data.length - 1; i > 0; i--) { 
+      if (data[i][12] === code) { 
+        sheetBaoHanh.getRange(i + 1, 1, 1, row.length).setValues([row]);
+        return;
+      }
+    }
+  } else {
+      sheetBaoHanh.insertRowBefore(2);
+       sheetBaoHanh.getRange(2, 1, 1, row.length).setValues([row]);
+  }
+}
+function logToSheet(message) {
+ var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  sheet.appendRow([new Date(), message]);
+}
+function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  // logToSheet("Webhook data: " + JSON.stringify(data));
+  main(data);
+  return ContentService.createTextOutput("OK").setMimeType(ContentService.MimeType.TEXT);
+}
