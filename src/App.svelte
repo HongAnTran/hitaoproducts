@@ -1,12 +1,14 @@
 <script>
   import { onMount } from "svelte";
   import ProductCard from "./ProductCard.svelte";
-
+  import FloatingQRButton from "./FloatingQRButton.svelte";
+  import FloatingQrButton from "./FloatingQRButton.svelte";
   let products = [];
   let categories = [];
   let search = "";
   let selectedCategory = null;
   let loading = true;
+  let showAll = false; // Thêm biến mới
 
   async function fetchProducts() {
     try {
@@ -26,18 +28,19 @@
 
   onMount(fetchProducts);
 
-  // Cập nhật categories khi products thay đổi
   $: categories = [...new Set(products.map((p) => p.category))];
-
-  // Lọc sản phẩm dựa trên category và search
   $: filteredProducts = (products || []).filter(
     (p) =>
       (!selectedCategory || p.category === selectedCategory) &&
       (p.name?.toLowerCase() || "").includes(search.toLowerCase())
   );
+  $: displayedProducts = showAll
+    ? filteredProducts
+    : filteredProducts.slice(0, 20); // Thêm logic hiển thị
 </script>
 
 <div class="hitaocontaier container">
+  <FloatingQrButton />
   <div class="box-stick">
     <div class="input-container">
       <input type="text" placeholder="Tìm sản phẩm..." bind:value={search} />
@@ -58,10 +61,6 @@
         </button>
       {/each}
     </div>
-    <!-- <div class=" product-type">
-      <h5>Lock</h5>
-      <h5>Quốc tế</h5>
-    </div> -->
   </div>
   {#if loading}
     <div class="grid">
@@ -72,17 +71,34 @@
     </div>
   {:else}
     <div class="grid">
-      {#each filteredProducts as product (product.id)}
+      {#each displayedProducts as product (product.id)}
         <ProductCard {product} />
       {/each}
     </div>
     {#if filteredProducts.length === 0}
       <div class="empty"><p>Không tìm thấy sản phẩm nào!</p></div>
+    {:else if filteredProducts.length > 20 && !showAll}
+      <div class="show-more">
+        <button on:click={() => (showAll = true)}>Xem toàn bộ</button>
+      </div>
     {/if}
   {/if}
 </div>
 
 <style>
+  .show-more {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .show-more button {
+    padding: 10px 20px;
+    background-color: orange;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
   * {
     font-family:
       Helvetica Neue,
@@ -100,9 +116,10 @@
   } */
   .box-stick {
     position: sticky;
-    top: 0;
+    top: 8px;
     z-index: 1;
     background-color: #3e3e3f;
+    border-radius: 12px;
   }
 
   .hitaocontaier {
@@ -122,9 +139,10 @@
     flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 20px;
+    padding-bottom: 12px;
     justify-content: center;
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .categories button {
     all: unset;
@@ -240,6 +258,7 @@
     .categories button {
       padding: 0px;
       font-size: 13px;
+      text-align: center;
     }
 
     .product-type h5 {
