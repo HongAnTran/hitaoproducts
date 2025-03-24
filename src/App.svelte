@@ -1,20 +1,18 @@
 <script>
   import { onMount } from "svelte";
   import ProductCard from "./ProductCard.svelte";
-  import FloatingQRButton from "./FloatingQRButton.svelte";
-  import FloatingQrButton from "./FloatingQRButton.svelte";
   let products = [];
   let categories = [];
   let search = "";
   let selectedCategory = null;
   let loading = true;
-  let showAll = false; // Thêm biến mới
+  let showAll = true; // Thêm biến mới
 
   async function fetchProducts() {
     try {
       loading = true;
       const URL =
-        "https://script.google.com/macros/s/AKfycbz1n9xzTw1M6hwQEjUGqN6S6nZnZi_Slm0zaXF3MldgwSKaWDOiCMkqoBmLoFI3J6u5/exec";
+        "https://script.google.com/macros/s/AKfycbzcQTBsr2Sm9h8zW319VY4woNf-yB--o_suB054m1JhPpyKOIlvu4KmJyUBv2V-pfJp/exec";
       const response = await fetch(URL);
       if (!response.ok) throw new Error("Lỗi khi tải dữ liệu");
       products = await response.json();
@@ -40,7 +38,6 @@
 </script>
 
 <div class="hitaocontaier container">
-  <FloatingQrButton />
   <div class="box-stick">
     <div class="input-container">
       <input type="text" placeholder="Tìm sản phẩm..." bind:value={search} />
@@ -110,10 +107,10 @@
     padding: 0px;
     box-sizing: border-box;
   }
-  /* .container {
-    max-width: 1080px;
+  .container {
+    max-width: 800px;
     margin: auto;
-  } */
+  }
   .box-stick {
     position: sticky;
     top: 8px;
@@ -129,7 +126,7 @@
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
     gap: 24px;
     align-items: stretch;
   }

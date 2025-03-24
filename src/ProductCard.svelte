@@ -111,18 +111,18 @@
     width: 100%;
     align-items: center;
     position: relative;
-    background: #323232;
+    /* background: #323232; */
     padding: 24px;
     border-radius: 12px;
     text-align: center;
-    color: white !important;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    color: #333 !important;
+    box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.1);
     transition: 0.3s ease;
   }
   .product-card:hover {
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
     /* transform: scale(1.01); */
-    background: #2c2c2c;
+    /* background: #2c2c2c; */
   }
 
   .product-content {
@@ -171,12 +171,12 @@
 
   .option-btn {
     all: unset;
-    background: #333;
-    color: white;
-    border: 1px solid #444;
+    /* background: #333; */
+    color: #333;
+    border: 2px solid #444;
     padding: 10px;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 10px;
     font-size: 14px;
     transition: all 0.3s ease;
     min-width: 42px;
@@ -187,7 +187,7 @@
   .option-btn.active {
     /* background: #fff;
       color: black; */
-    border: 1px solid orange;
+    border: 2px solid orange;
   }
 
   .mt-auto {
@@ -197,7 +197,7 @@
     font-size: 18px;
     font-weight: 500;
     margin-top: 12px;
-    color: white !important;
+    color: #333 !important;
   }
 
   .price {
@@ -266,8 +266,8 @@
       font-size: 14px;
     }
     .option-btn {
-      font-size: 10px;
-      padding: 4px;
+      font-size: 12px;
+      padding: 6px;
     }
     .badge-hitao {
       font-size: 10px;
@@ -280,7 +280,7 @@
       display: flex;
       padding-bottom: 5px;
       justify-content: start;
-      max-width: 155px;
+      /* max-width: 155px; */
       flex-wrap: nowrap;
     }
   }
