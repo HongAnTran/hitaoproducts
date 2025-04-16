@@ -42,22 +42,13 @@
     <div class="input-container">
       <input type="text" placeholder="Tìm sản phẩm..." bind:value={search} />
     </div>
-    <div class="categories">
-      <button
-        on:click={() => (selectedCategory = null)}
-        class:selected={!selectedCategory}
-      >
-        Tất cả
-      </button>
+    <select bind:value={selectedCategory} class="select">
+      <option value={null}>Tất cả</option>
       {#each categories as cate}
-        <button
-          on:click={() => (selectedCategory = cate)}
-          class:selected={selectedCategory === cate}
-        >
-          {cate}
-        </button>
+        <option value={cate}>{cate}</option>
       {/each}
-    </div>
+    </select>
+    
   </div>
   {#if loading}
     <div class="grid">
@@ -68,8 +59,10 @@
     </div>
   {:else}
     <div class="grid">
-      {#each displayedProducts as product (product.id)}
-        <ProductCard {product} />
+      {#each displayedProducts as product , index (product.id)}
+        <ProductCard {product}
+        classCard={index % 2 === 0 ? 'odd' : 'even'}
+        />
       {/each}
     </div>
     {#if filteredProducts.length === 0}
@@ -83,14 +76,33 @@
 </div>
 
 <style>
+
+
+    .select {
+      width: fit-content;
+    padding: 7px 22px;
+    height: 100%;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: white;
+    color: #333;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+ .select:focus {
+    border-color: #e53935;
+    box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2);
+  }
   .show-more {
     text-align: center;
     margin-top: 20px;
   }
   .show-more button {
     padding: 10px 20px;
-    background-color: orange;
-    color: white;
+    background-color: #e74c3c;
+    color: #333;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -108,15 +120,23 @@
     box-sizing: border-box;
   }
   .container {
-    max-width: 800px;
+    max-width: 600px;
     margin: auto;
   }
   .box-stick {
+    padding: 12px;
+
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap:8px;
     position: sticky;
     top: 8px;
     z-index: 1;
-    background-color: #3e3e3f;
+    background-color: #ffffff;
     border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
   }
 
   .hitaocontaier {
@@ -148,7 +168,7 @@
     cursor: pointer;
     background: transparent;
     transition: 0.3;
-    color: white;
+    color: #333;
     font-weight: 600;
   }
 
@@ -178,31 +198,31 @@
   }
 
   button.selected {
-    border-bottom: 1px solid orange;
-    color: white;
+    border-bottom: 1px solid #e74c3c;
+    color: #e74c3c;
   }
   button:hover {
-    border-bottom: 1px solid orange;
+    border-bottom: 1px solid #e74c3c;
 
-    color: white;
+    color: #e74c3c;
   }
   .input-container {
-    padding: 12px;
+    flex:1;
   }
 
   .input-container input {
     padding: 12px;
     border-radius: 5px;
-    margin-bottom: 10px;
+    width: 100%;
     outline: none;
     width: 100%;
     background-color: transparent;
-    border: 1px solid orange;
-    color: white;
+    border: 1px solid #e74c3c;
+    color: #333;
   }
 
   .input-container input::placeholder {
-    color: white;
+    color: #333;
   }
 
   .empty {
@@ -214,7 +234,7 @@
   }
 
   .empty p {
-    color: white;
+    color: #ccc;
     font-size: 20px;
     font-weight: 600;
   }
@@ -232,17 +252,17 @@
     flex-direction: column;
     width: 100%;
     align-items: center;
-    background: #323232;
+    background: #fff;
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
   }
   @keyframes pulse {
     0% {
-      background: #323232; /* Màu tối */
+      background: #fff; /* Màu tối */
     }
     100% {
-      background: #4f4f4f;
+      background: #f0f0f0; /* Màu sáng */
     }
   }
 

@@ -1,5 +1,6 @@
 <script>
   export let product;
+  export let classCard = ''
   let activeVariant = product.variants[0]; // Mặc định lấy variant đầu tiên
   function formatCurrency(price) {
     if (!Number(price)) {
@@ -53,7 +54,7 @@
   }
 </script>
 
-<div class="product-card">
+<div class="product-card  {classCard}">
   <div class=" product-image-contaner">
     {#key activeVariant.image}
       <img class="product-image" src={activeVariant.image} alt={product.name} />
@@ -105,13 +106,19 @@
 </div>
 
 <style>
+    .even {
+  background-color: #e0f7fa; /* màu xanh nhạt */
+}
+
+.odd {
+  background-color: #ffffff; /* trắng */
+}
   .product-card {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    /* width: 100%; */
     align-items: center;
     position: relative;
-    /* background: #323232; */
     padding: 24px;
     border-radius: 12px;
     text-align: center;
@@ -173,7 +180,7 @@
     all: unset;
     /* background: #333; */
     color: #333;
-    border: 2px solid #444;
+    border: 1px solid #ccc;
     padding: 10px;
     cursor: pointer;
     border-radius: 10px;
@@ -187,7 +194,7 @@
   .option-btn.active {
     /* background: #fff;
       color: black; */
-    border: 2px solid orange;
+    border: 1px solid #e74c3c;
   }
 
   .mt-auto {
@@ -204,7 +211,7 @@
     margin-top: 12px;
     font-size: 20px;
     font-weight: bold;
-    color: orange;
+    color: #e74c3c;
   }
 
   .compare-price {
@@ -216,13 +223,13 @@
   }
 
   .discount {
-    color: orange;
+    color: #e74c3c;
     font-size: 14px;
     margin-left: 6px;
   }
 
   .promo-text {
-    color: orange;
+    color: #e74c3c;
     font-size: 14px;
     margin-top: 5px;
   }
@@ -238,8 +245,8 @@
     top: 10px;
     right: 10px;
     border-radius: 50px;
-    background-color: orange;
-    border: 2px solid orange;
+    background-color: #e74c3c;
+    border: 2px solid #e74c3c;
     color: white;
     padding: 4px 6px;
     text-transform: uppercase;
@@ -266,7 +273,7 @@
       font-size: 14px;
     }
     .option-btn {
-      font-size: 12px;
+      font-size: 10px;
       padding: 6px;
     }
     .badge-hitao {
@@ -295,7 +302,7 @@
       display: flex;
       padding-bottom: 5px;
       justify-content: start;
-      max-width: 110px;
+      max-width: 300px;
       flex-wrap: nowrap;
     }
   }
