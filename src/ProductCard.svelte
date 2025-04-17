@@ -1,6 +1,6 @@
 <script>
   export let product;
-  export let classCard = ''
+  export let classCard = "";
   let activeVariant = product.variants[0]; // Mặc định lấy variant đầu tiên
   function formatCurrency(price) {
     if (!Number(price)) {
@@ -54,7 +54,7 @@
   }
 </script>
 
-<div class="product-card  {classCard}">
+<div class="product-card {classCard}">
   <div class=" product-image-contaner">
     {#key activeVariant.image}
       <img class="product-image" src={activeVariant.image} alt={product.name} />
@@ -106,13 +106,14 @@
 </div>
 
 <style>
-    .even {
-  background-color: #e0f7fa; /* màu xanh nhạt */
-}
+  .even {
+    /* background-color: #e0f7fa;  */
+    background: linear-gradient(to bottom, #d6ebf6 0%, #ffffff 100%);
+  }
 
-.odd {
-  background-color: #ffffff; /* trắng */
-}
+  .odd {
+    background-color: #ffffff; /* trắng */
+  }
   .product-card {
     display: flex;
     flex-direction: column;
@@ -260,15 +261,21 @@
     }
     .product-card {
       padding: 12px;
+      padding-left: 0;
+      padding-right: 0;
     }
     .product-name {
       font-size: 14px;
+      margin: 0;
     }
     .price {
       font-size: 14px;
       font-weight: 600;
+      margin: 0;
     }
-
+    .promo-text {
+      margin-bottom: 0;
+    }
     .compare-price {
       font-size: 14px;
     }
@@ -302,7 +309,7 @@
       display: flex;
       padding-bottom: 5px;
       justify-content: start;
-      max-width: 300px;
+      max-width: 310px;
       flex-wrap: nowrap;
     }
   }
