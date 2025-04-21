@@ -48,7 +48,6 @@
         <option value={cate}>{cate}</option>
       {/each}
     </select>
-    
   </div>
   {#if loading}
     <div class="grid">
@@ -59,10 +58,8 @@
     </div>
   {:else}
     <div class="grid">
-      {#each displayedProducts as product , index (product.id)}
-        <ProductCard {product}
-        classCard={index % 2 === 0 ? 'odd' : 'even'}
-        />
+      {#each displayedProducts as product, index (product.id)}
+        <ProductCard {product} classCard={index % 2 === 0 ? "odd" : "even"} />
       {/each}
     </div>
     {#if filteredProducts.length === 0}
@@ -76,10 +73,8 @@
 </div>
 
 <style>
-
-
-    .select {
-      width: fit-content;
+  .select {
+    width: fit-content;
     padding: 7px 22px;
     height: 100%;
     font-size: 14px;
@@ -88,10 +83,12 @@
     background-color: white;
     color: #333;
     outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
   }
 
- .select:focus {
+  .select:focus {
     border-color: #e53935;
     box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.2);
   }
@@ -120,7 +117,7 @@
     box-sizing: border-box;
   }
   .container {
-    max-width: 600px;
+    max-width: 1200px;
     margin: auto;
   }
   .box-stick {
@@ -129,14 +126,16 @@
     margin-bottom: 12px;
     display: flex;
     align-items: center;
-    gap:8px;
+    gap: 8px;
     position: sticky;
     top: 8px;
     z-index: 1;
     background-color: #ffffff;
     border-radius: 12px;
     border: 1px solid #e0e0e0;
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    box-shadow:
+      rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+      rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
   }
 
   .hitaocontaier {
@@ -146,7 +145,7 @@
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     align-items: stretch;
   }
@@ -207,7 +206,7 @@
     color: #e74c3c;
   }
   .input-container {
-    flex:1;
+    flex: 1;
   }
 
   .input-container input {
@@ -267,6 +266,12 @@
   }
 
   @media (max-width: 768px) {
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
     .categories {
       display: grid;
       grid-template-columns: repeat(4, 1fr);

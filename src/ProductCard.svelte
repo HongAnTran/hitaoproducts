@@ -112,7 +112,9 @@
   }
 
   .odd {
-    background-color: #ffffff; /* trắng */
+    background: linear-gradient(to bottom, #d6ebf6 0%, #ffffff 100%);
+
+    /* background-color: #ffffff;  */
   }
   .product-card {
     display: flex;
